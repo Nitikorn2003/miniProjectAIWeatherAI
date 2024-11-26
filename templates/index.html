@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Weather Prediction</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1e1e1e;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            height: 100vh; /* ปรับให้ความสูงเต็มหน้าจอ */
+            display: flex; /* ใช้ flexbox สำหรับจัดตำแหน่ง */
+            align-items: flex-start; /* จัดตำแหน่งในแนวตั้งที่เริ่มต้น */
+        }
+        .container {
+            display: flex; /* ใช้ flexbox สำหรับจัดตำแหน่ง */
+            width: 100%; /* ใช้เต็มพื้นที่ */
+            max-width: 1200px; /* ขนาดสูงสุด */
+            margin: auto; /* จัดกลางในแนวนอน */
+            flex-wrap: wrap; /* ทำให้ย่อให้พอดีกับหน้าจอ */
+        }
+        .upload-section {
+            flex: 1; /* ทำให้มีสัดส่วนที่เหมาะสม */
+            min-width: 250px; /* ขนาดขั้นต่ำ */
+            max-width: 400px; /* ขนาดสูงสุด */
+            margin-right: 20px; /* ช่องว่างระหว่างสองส่วน */
+            background: #2c2c2c;
+            padding: 20px; /* ลด padding */
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            text-align: left; /* จัดข้อความให้ชิดซ้าย */
+        }
+        .metrics-section {
+            flex: 1; /* ทำให้มีสัดส่วนที่เหมาะสม */
+            min-width: 250px; /* ขนาดขั้นต่ำ */
+            max-width: 600px; /* ขนาดสูงสุด */
+            background: #2c2c2c;
+            padding: 20px; /* ลด padding */
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            text-align: left; /* จัดข้อความให้ชิดซ้าย */
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem; /* ปรับขนาดหัวข้อ */
+            color: #00bcd4;
+            text-shadow: 1px 1px 5px rgba(0, 188, 212, 0.5);
+        }
+        .upload-wrapper {
+            display: inline-block;
+            width: 100%; /* ใช้เต็มพื้นที่ */
+        }
+        .upload-button {
+            display: inline-block;
+            padding: 15px 30px; /* ปรับขนาดปุ่ม */
+            border: none;
+            border-radius: 4px;
+            background-color: #00bcd4;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s;
+            font-size: 1.2rem; /* ปรับขนาดตัวอักษร */
+            width: 100%; /* ใช้เต็มพื้นที่ */
+        }
+        .upload-button:hover {
+            background-color: #0097a7;
+        }
+        .file-input {
+            display: none;
+        }
+        .file-label {
+            display: block;
+            padding: 30px; /* ปรับขนาดป้าย */
+            border: 2px dashed #00bcd4;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            background-color: #2c2c2c;
+            font-size: 1.2rem; /* ปรับขนาดตัวอักษร */
+        }
+        .file-label:hover {
+            background-color: #3e3e3e;
+        }
+        h2 {
+            margin-top: 20px;
+            font-size: 2rem; /* ปรับขนาดหัวข้อย่อย */
+            color: #00bcd4;
+        }
+        .metrics {
+            font-size: 1.5rem; /* ปรับขนาดข้อความ Metrics */
+            margin-top: 20px;
+            line-height: 1.6; /* เพิ่มระยะห่างระหว่างบรรทัด */
+        }
+        img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #00bcd4;
+            border-radius: 4px;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2rem; /* ปรับขนาดข้อความผิดพลาด */
+        }
+
+        /* Media Queries สำหรับปรับขนาดบนมือถือ */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column; /* เปลี่ยนเป็นแนวตั้งบนมือถือ */
+            }
+            .upload-section, .metrics-section {
+                margin-right: 0; /* ยกเลิก margin */
+                margin-bottom: 20px; /* เพิ่มช่องว่างด้านล่าง */
+            }
+        }
+    </style>
+    <script>
+        function updateFileName() {
+            const fileInput = document.getElementById('file');
+            const fileLabel = document.querySelector('.file-label');
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name; // รับชื่อไฟล์
+                fileLabel.textContent = fileName; // อัปเดตข้อความของป้าย
+            } else {
+                fileLabel.textContent = 'เลือกไฟล์ CSV เพื่ออัปโหลด'; // ถ้าไม่มีไฟล์ที่เลือก
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="upload-section">
+            <h1>AI Weather Prediction Model</h1>
+
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <div class="upload-wrapper">
+                    <label for="file" class="file-label" onclick="this.classList.remove('active');">เลือกไฟล์ CSV เพื่ออัปโหลด</label>
+                    <input type="file" id="file" name="file" accept=".csv" class="file-input" required onchange="updateFileName()">
+                    <button type="submit" class="upload-button">Upload</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="metrics-section">
+            {% if mean_absolute_error is not none %}
+            <h2>Metrics:</h2>
+            <div class="metrics">
+                <p>Mean Absolute Error: {{ mean_absolute_error }}</p>
+                <p>Mean Squared Error: {{ mean_squared_error }}</p>
+                <p>Root Mean Squared Error: {{ root_mean_squared_error }}</p>
+                <p>R² Score: {{ r2_score }}</p>
+                <p>ค่าเฉลี่ยอุณหภูมิ: {{ average_temperature }}</p> <!-- แสดงค่าเฉลี่ยอุณหภูมิ -->
+            </div>
+
+            <h2>Actual vs Predicted Values</h2>
+            <img src="{{ url_for('static', filename='plot.png') }}" alt="Actual vs Predicted Values">
+            {% endif %}
+
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
